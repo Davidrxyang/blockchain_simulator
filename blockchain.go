@@ -31,3 +31,22 @@ func NewBlock(index int, data, prevHash string) *Block {
 	block.MineBlock(difficulty)
 	return block
 }
+
+func (b *Block) CalculateHash() string {
+	record := strconv.Itoa(b.Index) + b.Timestamp + b.Data + b.PrevHash + strconv.Itoa(b.Nonce)
+	h := sha256.New()
+	h.Write([]byte(record))
+	hashed := h.Sum(nil)
+	return hex.EncodeToString(hashed)
+}
+
+const difficulty = 3
+
+func (b *Block) MineBlock(difficulty int) {
+	prefix := strings.Repeat("0", difficulty)
+	for !strings.HasPrefix(b.Hash, prefix) {
+		b.Nonce++
+		b.Hash = b.CalculateHash()
+	}
+	fmt.Println("Block mined:", b.Hash)
+}
