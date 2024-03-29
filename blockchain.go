@@ -50,3 +50,48 @@ func (b *Block) MineBlock(difficulty int) {
 	}
 	fmt.Println("Block mined:", b.Hash)
 }
+
+func (bc *Blockchain) ValidateChain() bool {
+	for i := 1; i < len(bc.Blocks); i++ {
+		currentBlock := bc.Blocks[i]
+		prevBlock := bc.Blocks[i-1]
+
+		if currentBlock.Hash != currentBlock.CalculateHash() {
+			fmt.Println("Current hashes not equal")
+			return false
+		}
+
+		if currentBlock.PrevHash != prevBlock.Hash {
+			fmt.Println("Previous hashes not equal")
+			return false
+		}
+	}
+	return true
+}
+
+func (bc *Blockchain) AddBlock(data string) {
+	prevBlock := bc.Blocks[len(bc.Blocks)-1]
+	newBlock := NewBlock(prevBlock.Index+1, data, prevBlock.Hash)
+	bc.Blocks = append(bc.Blocks, newBlock)
+}
+
+func NewBlockchain() *Blockchain {
+	return &Blockchain{[]*Block{NewGenesisBlock()}}
+}
+
+func main() {
+	bc := NewBlockchain()
+
+	bc.AddBlock("First Block after Genesis")
+	bc.AddBlock("Second Block after Genesis")
+	bc.AddBlock("Third Block after Genesis")
+
+	for _, block := range bc.Blocks {
+		fmt.Printf("Prev. hash: %s\n", block.PrevHash)
+		fmt.Printf("Data: %s\n", block.Data)
+		fmt.Printf("Hash: %s\n", block.Hash)
+		fmt.Println()
+	}
+
+	fmt.Println("Blockchain valid:", bc.ValidateChain())
+}
